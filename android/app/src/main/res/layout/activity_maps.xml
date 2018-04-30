@@ -4,17 +4,90 @@
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="200dip"
-    tools:context="com.bigdata.carpark.MainActivity" />
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        tools:context="com.bigdata.carpark.MainActivity" />
 
-<TextView
-    android:id="@+id/get_selected_car_park"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/decrease"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="decreaseMin"
+            android:textColor="@color/colorPrimary"
+            android:background="@null"
+            android:textSize="50sp"
+            android:text=" - " />
+
+        <TextView
+            android:id="@+id/integer_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginTop="16dp"
+            android:textColor="#184691"
+            android:text="0m"
+            android:textSize="50sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/increase"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="increaseMin"
+            android:textColor="@color/colorPrimary"
+            android:background="@null"
+            android:textSize="50sp"
+            android:text=" + " />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/get_selected_car_park"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="20sp"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="hello" />
+
+    <TextView
+        android:id="@+id/get_selected_car_park_availability"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        android:text="asdfasdfasdfsfasdf" />
+
+    <Button
+        android:id="@+id/check_results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:background="@color/colorPrimary"
+        android:layout_marginTop="30dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:textSize="15sp"
+        android:visibility="invisible"
+        android:text="@string/check_availability" />
+
+
 
 </LinearLayout>

@@ -7,4 +7,5 @@
     <string name="pick_place">Choose a place</string>
     <string name="select_car_park">Select Car Park</string>
     <string name="title_activity_select_car_park">SELECT CAR PARK</string>
+    <string name="check_availability">  CHECK AVAILABILITY </string>
 </resources>

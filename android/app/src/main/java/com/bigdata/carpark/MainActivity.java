@@ -2,6 +2,9 @@ package com.bigdata.carpark;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -27,8 +31,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Calendar;
+import java.util.List;
+
+import static com.bigdata.carpark.SelectCarParkActivity.mAndroidMapList;
+import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
 /**
  * Created by Rach on 25/4/2018.
@@ -37,6 +55,14 @@ import com.google.android.gms.tasks.Task;
 public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback {
 
+    private static final String KEY_NUM = "car_park_no";
+    private static final String KEY_ADDR = "address";
+    private static final String KEY_TYPE = "car_park_type";
+    private static final String KEY_X_COORD = "x_coord";
+    private static final String KEY_Y_COORD = "y_coord";
+
+    public static String carParkName;
+    public static String availability;
     private static final String TAG = MainActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
@@ -44,13 +70,20 @@ public class MainActivity extends AppCompatActivity
     private PlaceDetectionClient mPlaceDetectionClient;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
-    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
+    private LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
     private static final int DEFAULT_ZOOM = 15;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
 
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
+
+    private TextView carparkNameText;
+    private TextView predictedAvailabilityText;
+
+    public static int minteger = 0;
+
+    public static int position = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +103,55 @@ public class MainActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        initializeView();
+        checkAvailability();
 
-        //TODO Get selected car park here
-      /*Bundle bundle = getIntent().getExtras();
-        String message = bundle.getString("message");
-        TextView txtView = (TextView) findViewById(R.id.get_selected_car_park);
-        txtView.setText(message);*/
+    }
+
+    public void initializeView() {
+        carparkNameText = (TextView) findViewById(R.id.get_selected_car_park);
+
+        predictedAvailabilityText = (TextView) findViewById(R.id.get_selected_car_park_availability);
+        if(Double.parseDouble((String) predictedAvailabilityText.getText()) > 50){
+            predictedAvailabilityText.setTextColor(Color.parseColor("#29826e"));
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        carparkNameText.setText(carParkName);
+        predictedAvailabilityText.setText(availability);
+        if (mMap != null) {
+            mMap.clear();
+            // mDefaultLocation = new LatLng(Double.parseDouble(mAndroidMapList.get(position).get(KEY_X_COORD)),Double.parseDouble(mAndroidMapList.get(position).get(KEY_Y_COORD)) );
+            // mDefaultLocation = new LatLng(0.02924703, 0.038962);
+            //mMap.moveCamera(CameraUpdateFactory
+            //.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+
+            Geocoder coder = new Geocoder(this);
+            List<Address> address;
+            try {
+                String locationName = carParkName;
+                Geocoder gc = new Geocoder(this);
+                List<Address> addressList = coder.getFromLocationName(locationName, 5);
+                Address location = addressList.get(0);
+
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+                LatLng dataloc = new LatLng(latitude, longitude);
+                //mMap.setMyLocationEnabled(true);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(dataloc, 13));
+
+                mMap.addMarker(new MarkerOptions().position(dataloc).title(carParkName));
+
+            } catch (Exception e) {
+
+            }
+        }
+
     }
 
     @Override
@@ -137,14 +213,14 @@ public class MainActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful()) {
                             mLastKnownLocation = task.getResult();
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                            mMap.moveCamera(newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
-                            mMap.moveCamera(CameraUpdateFactory
-                                    .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                            mMap.moveCamera(
+                                    newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
                             mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         }
                     }
@@ -185,7 +261,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void openSelectCarPark(){
+    private void openSelectCarPark() {
         Intent intent = new Intent(this, SelectCarParkActivity.class);
         startActivity(intent);
     }
@@ -207,6 +283,97 @@ public class MainActivity extends AppCompatActivity
             }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
+        }
+    }
+
+    public void increaseMin(View view) {
+        minteger = minteger + 15;
+        display(minteger);
+        String EMPTY = "";
+        if (!EMPTY.equals(carparkNameText.getText())) {
+            final Button button = (Button) findViewById(R.id.check_results);
+            button.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    public void decreaseMin(View view) {
+        minteger = minteger - 15;
+        display(minteger);
+        String EMPTY = "";
+        if (!EMPTY.equals(carparkNameText.getText())) {
+            final Button button = (Button) findViewById(R.id.check_results);
+            button.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void display(int number) {
+        TextView displayInteger = (TextView) findViewById(
+                R.id.integer_number);
+        displayInteger.setText("" + number + "m");
+    }
+
+    public void checkAvailability() {
+        final Button button = (Button) findViewById(R.id.check_results);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                v.setVisibility(View.INVISIBLE);
+                // Code here executes on main thread after user presses button
+                SocketThread socketThread = new SocketThread(position);
+                socketThread.start();
+
+                try {
+                    Thread.currentThread().sleep(1000);
+                    predictedAvailabilityText.setText(availability);
+                } catch (Exception e) {
+
+                }
+            }
+        });
+
+    }
+
+    class SocketThread extends Thread {
+        int position;
+
+        public SocketThread(int position) {
+            this.position = position;
+        }
+
+        public void run() {
+            Socket socket = null;
+            OutputStream output = null;
+            try {
+                socket = new Socket("172.31.67.160", 15000);
+                output = socket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            PrintWriter writer = new PrintWriter(output, true);
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, minteger);
+
+            String time = calendar.get(Calendar.HOUR) + "" + String.format("%02d", calendar.get(Calendar.MINUTE)) + "" + String.format("%02d", calendar.get(Calendar.SECOND));
+            writer.println(mAndroidMapList.get(position).get(KEY_NUM) + "," + time);
+            InputStream is = null;
+            String predictedAvailability = null;
+            MainActivity.carParkName = mAndroidMapList.get(position).get(KEY_ADDR);
+            try {
+                is = socket.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader reader = new BufferedReader(isr);
+                predictedAvailability = reader.readLine();
+                MainActivity.availability = predictedAvailability;
+
+                socket.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.d("PREDICTION", predictedAvailability);
+            // Toast.makeText(SelectCarParkActivity.this,predictedAvailability,Toast.LENGTH_SHORT).show();
+
         }
     }
 }

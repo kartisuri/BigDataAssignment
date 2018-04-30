@@ -2,6 +2,7 @@ package com.bigdata.carpark;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -11,9 +12,19 @@ import android.widget.Toast;
 
 import com.bigdata.carpark.model.CarPark;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.bigdata.carpark.MainActivity.minteger;
 
 /**
  * Created by Rach on 25/4/2018.
@@ -23,13 +34,19 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
 
     private ListView mListView;
 
-    public static final String URL = "http://demo6823195.mockable.io/";
+    //public static final String URL = "http://demo6823195.mockable.io/";
+    public static final String URL = "http://demo1273850.mockable.io/";
 
-    private List<HashMap<String, String>> mAndroidMapList = new ArrayList<>();
+    public static List<HashMap<String, String>> mAndroidMapList = new ArrayList<>();
+
 
     private static final String KEY_NUM = "car_park_no";
     private static final String KEY_ADDR = "address";
     private static final String KEY_TYPE = "car_park_type";
+    private static final String KEY_X_COORD = "x_coord";
+    private static final String KEY_Y_COORD = "y_coord";
+
+    private AppCompatActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +67,8 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
             map.put(KEY_NUM, android.getCar_park_no());
             map.put(KEY_ADDR, android.getAddress());
             map.put(KEY_TYPE, android.getCar_park_type());
+            map.put(KEY_X_COORD, android.getX_coord());
+            map.put(KEY_Y_COORD, android.getY_coord());
             mAndroidMapList.add(map);
         }
 
@@ -67,10 +86,61 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
         Toast.makeText(this, mAndroidMapList.get(i).get(KEY_ADDR),Toast.LENGTH_LONG).show();
+        SocketThread socketThread = new SocketThread(i);
+        socketThread.start();
+        MainActivity.position = i;
+
+       //finish();
+
         //TODO Pass selected car park to main activity
-        /*Intent intent = new Intent(SelectCarParkActivity.this, MainActivity.class);
-        intent.putExtra("message", mAndroidMapList.get(i).get(KEY_ADDR));
-        startActivity(intent);*/
+//        Intent intent = new Intent(SelectCarParkActivity.this, MainActivity.class);
+//        intent.putExtra("message", mAndroidMapList.get(i).get(KEY_ADDR));
+//        startActivity(intent);
+    }
+
+
+    class SocketThread extends Thread{
+        int position;
+        public SocketThread(int position)
+        {
+            this.position = position;
+        }
+        public void run()
+        {
+            Socket socket = null;
+            OutputStream output = null;
+            try {
+                socket = new Socket("172.31.67.160",15000);
+                output = socket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            PrintWriter writer = new PrintWriter(output, true);
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE,minteger);
+
+            String time = calendar.get(Calendar.HOUR)+""+String.format("%02d",calendar.get(Calendar.MINUTE))+""+String.format("%02d",calendar.get(Calendar.SECOND));
+            writer.println(mAndroidMapList.get(position).get(KEY_NUM)+","+time);
+            InputStream is = null;
+            String predictedAvailability = null;
+            MainActivity.carParkName = mAndroidMapList.get(position).get(KEY_ADDR);
+            try {
+                is = socket.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader reader = new BufferedReader(isr);
+                predictedAvailability  = reader.readLine();
+                MainActivity.availability = predictedAvailability;
+                socket.close();
+                SelectCarParkActivity.this.finish();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.d("PREDICTION",predictedAvailability);
+           // Toast.makeText(SelectCarParkActivity.this,predictedAvailability,Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     private void loadListView() {
