@@ -24,11 +24,11 @@ public class CarPark {
         return car_park_type;
     }
 
-    public String getX_coord(){
+    public String getX_coord() {
         return x_coord;
     }
 
-    public String getY_coord(){
+    public String getY_coord() {
         return y_coord;
     }
 }

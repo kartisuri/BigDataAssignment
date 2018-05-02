@@ -2,7 +2,6 @@ package com.bigdata.carpark;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -62,7 +61,7 @@ public class MainActivity extends AppCompatActivity
     private static final String KEY_Y_COORD = "y_coord";
 
     public static String carParkName;
-    public static String availability;
+    public static String availability="";
     private static final String TAG = MainActivity.class.getSimpleName();
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
@@ -112,9 +111,11 @@ public class MainActivity extends AppCompatActivity
         carparkNameText = (TextView) findViewById(R.id.get_selected_car_park);
 
         predictedAvailabilityText = (TextView) findViewById(R.id.get_selected_car_park_availability);
-        if(Double.parseDouble((String) predictedAvailabilityText.getText()) > 50){
-            predictedAvailabilityText.setTextColor(Color.parseColor("#29826e"));
-        }
+        /*if (Double.parseDouble((String) predictedAvailabilityText.getText()) > 50) {
+            predictedAvailabilityText.setTextColor(Color.parseColor("#32CD32"));
+        } else {
+            predictedAvailabilityText.setTextColor(Color.parseColor("#FFA500"));
+        }*/
 
     }
 
@@ -122,14 +123,14 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         carparkNameText.setText(carParkName);
-        predictedAvailabilityText.setText(availability);
+        predictedAvailabilityText.setText(availability + " % available! ");
+       /* if (Double.parseDouble((String) predictedAvailabilityText.getText()) > 50) {
+            predictedAvailabilityText.setTextColor(Color.parseColor("#32CD32"));
+        } else {
+            predictedAvailabilityText.setTextColor(Color.parseColor("#FFA500"));
+        }*/
         if (mMap != null) {
             mMap.clear();
-            // mDefaultLocation = new LatLng(Double.parseDouble(mAndroidMapList.get(position).get(KEY_X_COORD)),Double.parseDouble(mAndroidMapList.get(position).get(KEY_Y_COORD)) );
-            // mDefaultLocation = new LatLng(0.02924703, 0.038962);
-            //mMap.moveCamera(CameraUpdateFactory
-            //.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
-
             Geocoder coder = new Geocoder(this);
             List<Address> address;
             try {
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity
     private void display(int number) {
         TextView displayInteger = (TextView) findViewById(
                 R.id.integer_number);
-        displayInteger.setText("" + number + "m");
+        displayInteger.setText("" + number + " m");
     }
 
     public void checkAvailability() {
@@ -324,7 +325,12 @@ public class MainActivity extends AppCompatActivity
 
                 try {
                     Thread.currentThread().sleep(1000);
-                    predictedAvailabilityText.setText(availability);
+                    predictedAvailabilityText.setText(availability +" % available!");
+                   /* if (Double.parseDouble((String) predictedAvailabilityText.getText()) > 50) {
+                        predictedAvailabilityText.setTextColor(Color.parseColor("#32CD32"));
+                    } else {
+                        predictedAvailabilityText.setTextColor(Color.parseColor("#FFA500"));
+                    }*/
                 } catch (Exception e) {
 
                 }
@@ -344,7 +350,8 @@ public class MainActivity extends AppCompatActivity
             Socket socket = null;
             OutputStream output = null;
             try {
-                socket = new Socket("172.31.67.160", 15000);
+                //socket = new Socket("172.31.67.160", 15000);
+                socket = new Socket("192.168.43.187", 15000);
                 output = socket.getOutputStream();
             } catch (IOException e) {
                 e.printStackTrace();

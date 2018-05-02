@@ -23,11 +23,11 @@
             android:id="@+id/decrease"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="decreaseMin"
-            android:textColor="@color/colorPrimary"
             android:background="@null"
-            android:textSize="50sp"
-            android:text=" - " />
+            android:onClick="decreaseMin"
+            android:text=" - "
+            android:textColor="@color/colorPrimary"
+            android:textSize="50sp" />
 
         <TextView
             android:id="@+id/integer_number"
@@ -37,8 +37,8 @@
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
             android:layout_marginTop="16dp"
-            android:textColor="#184691"
             android:text="0m"
+            android:textColor="#184691"
             android:textSize="50sp"
             android:textStyle="bold" />
 
@@ -46,11 +46,11 @@
             android:id="@+id/increase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="increaseMin"
-            android:textColor="@color/colorPrimary"
             android:background="@null"
-            android:textSize="50sp"
-            android:text=" + " />
+            android:onClick="increaseMin"
+            android:text=" + "
+            android:textColor="@color/colorPrimary"
+            android:textSize="50sp" />
     </LinearLayout>
 
     <TextView
@@ -58,36 +58,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:textSize="20sp"
-        android:textColor="@color/colorPrimary"
-        android:textStyle="bold"
         android:gravity="center"
-        android:text="hello" />
+        android:text="hello"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/get_selected_car_park_availability"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:textColor="@color/colorPrimary"
-        android:textStyle="bold"
         android:layout_marginTop="16dp"
-        android:text="asdfasdfasdfsfasdf" />
+        android:gravity="center"
+        android:text="asdfasdfasdfsfasdf"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/check_results"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#fff"
-        android:background="@color/colorPrimary"
         android:layout_marginTop="30dp"
+        android:background="@color/colorPrimary"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:text="@string/check_availability"
+        android:textColor="#fff"
         android:textSize="15sp"
-        android:visibility="invisible"
-        android:text="@string/check_availability" />
-
+        android:visibility="invisible" />
 
 
 </LinearLayout>

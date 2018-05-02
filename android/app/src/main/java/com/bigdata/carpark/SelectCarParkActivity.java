@@ -85,32 +85,26 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-        Toast.makeText(this, mAndroidMapList.get(i).get(KEY_ADDR),Toast.LENGTH_LONG).show();
+        Toast.makeText(this, mAndroidMapList.get(i).get(KEY_ADDR), Toast.LENGTH_LONG).show();
         SocketThread socketThread = new SocketThread(i);
         socketThread.start();
         MainActivity.position = i;
 
-       //finish();
-
-        //TODO Pass selected car park to main activity
-//        Intent intent = new Intent(SelectCarParkActivity.this, MainActivity.class);
-//        intent.putExtra("message", mAndroidMapList.get(i).get(KEY_ADDR));
-//        startActivity(intent);
     }
 
 
-    class SocketThread extends Thread{
+    class SocketThread extends Thread {
         int position;
-        public SocketThread(int position)
-        {
+
+        public SocketThread(int position) {
             this.position = position;
         }
-        public void run()
-        {
+
+        public void run() {
             Socket socket = null;
             OutputStream output = null;
             try {
-                socket = new Socket("172.31.67.160",15000);
+                socket = new Socket("192.168.43.187", 15000);
                 output = socket.getOutputStream();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -118,10 +112,10 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
 
             PrintWriter writer = new PrintWriter(output, true);
             Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MINUTE,minteger);
+            calendar.add(Calendar.MINUTE, minteger);
 
-            String time = calendar.get(Calendar.HOUR)+""+String.format("%02d",calendar.get(Calendar.MINUTE))+""+String.format("%02d",calendar.get(Calendar.SECOND));
-            writer.println(mAndroidMapList.get(position).get(KEY_NUM)+","+time);
+            String time = calendar.get(Calendar.HOUR) + "" + String.format("%02d", calendar.get(Calendar.MINUTE)) + "" + String.format("%02d", calendar.get(Calendar.SECOND));
+            writer.println(mAndroidMapList.get(position).get(KEY_NUM) + "," + time);
             InputStream is = null;
             String predictedAvailability = null;
             MainActivity.carParkName = mAndroidMapList.get(position).get(KEY_ADDR);
@@ -129,7 +123,7 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
                 is = socket.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader reader = new BufferedReader(isr);
-                predictedAvailability  = reader.readLine();
+                predictedAvailability = reader.readLine();
                 MainActivity.availability = predictedAvailability;
                 socket.close();
                 SelectCarParkActivity.this.finish();
@@ -137,8 +131,8 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.d("PREDICTION",predictedAvailability);
-           // Toast.makeText(SelectCarParkActivity.this,predictedAvailability,Toast.LENGTH_SHORT).show();
+            Log.d("PREDICTION", predictedAvailability);
+            // Toast.makeText(SelectCarParkActivity.this,predictedAvailability,Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -146,8 +140,8 @@ public class SelectCarParkActivity extends AppCompatActivity implements LoadCarP
     private void loadListView() {
 
         ListAdapter adapter = new SimpleAdapter(SelectCarParkActivity.this, mAndroidMapList, R.layout.list_car_park,
-                new String[] {KEY_NUM, KEY_ADDR, KEY_TYPE},
-                new int[] { R.id.car_park_num,R.id.car_park_addr, R.id.car_park_type });
+                new String[]{KEY_NUM, KEY_ADDR, KEY_TYPE},
+                new int[]{R.id.car_park_num, R.id.car_park_addr, R.id.car_park_type});
 
         mListView.setAdapter(adapter);
 
